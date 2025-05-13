@@ -20,3 +20,5 @@ Möjliggör användningen av "A standard 4x4 keypad" och displayen lcd2004 "An L
 
 7.
 Möjliggör användningen av NeoPixel Compatible LED (ws2812) samt analog-joystick och skapa ett spel där när man trycker på joystick-knappen startar spelet. En ändrandes färg börjar rotera i ringen som går snabbare och snabbare tills den sist stannar på antingen 0, 90, 180, 270 grader och användaren ska då snabbast möjligast dra joysticken mot samma vinkel! Gör det antingen tidsbaserat så att man har bara en viss tid på sig eller mät tiden. 
+
+More might come
