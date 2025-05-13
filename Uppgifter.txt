@@ -1,0 +1,22 @@
+Här nedan följer ett flertal önskemål från lindas gröna sköna:
+
+1. 
+Använd "HC-SR04 Ultrasonic Distance Sensor" för att mäta avstånd till objekt samt uppdatera "Seven segment LED display module with TM1637 4-wire interface" med aktuellt värde i cm
+
+2. 
+Använd "Passive Infrared (PIR) motion sensor" för att detektera rörelser och vid aktivering så ska en "A standard Micro Servo Motor" aktiveras och röra sig från stängt läge till fullt utslag. Tänk automatiska dörrar som i matafärer och liknande.
+
+3.
+Miljöinformation! Möjliggör avläsning från temperatur data från DS18B20 samt DHT22 som också har möjlighet för luftfuktiget. Vidare möjliggör avläsning av ldr (light dependant resistor) och mq2 gas sensor! All den här data ska skrivas ut på en Monochrome 128x64 OLED display with I2C interface (ssd1306), se nedan!
+
+4.
+Möjliggör användandet av Monochrome 128x64 OLED display with I2C interface (ssd1306). Se till att vi kan enkelt skriva text och siffror till den!!
+
+5.
+Använd "KY-040 Rotary Encoder module with 20 steps per revolution" för att kontrollera en "A bipolar stepper motor". Dvs, rotera vi höger på Encoder ska motorn stega proportionellt 
+
+6.
+Möjliggör användningen av "A standard 4x4 keypad" och displayen lcd2004 "An LCD display with 4 lines, 20 characters per line." som senare ska kunna prompta användaren om ett lösenord på 4 bokstäver och när användaren skriven in rätt 4 bokstäver(lösenord) ska vi skriva ut öppnar Lindas Hemliga!
+
+7.
+Möjliggör användningen av NeoPixel Compatible LED (ws2812) samt analog-joystick och skapa ett spel där när man trycker på joystick-knappen startar spelet. En ändrandes färg börjar rotera i ringen som går snabbare och snabbare tills den sist stannar på antingen 0, 90, 180, 270 grader och användaren ska då snabbast möjligast dra joysticken mot samma vinkel! Gör det antingen tidsbaserat så att man har bara en viss tid på sig eller mät tiden. 
