@@ -6,7 +6,8 @@
           "/avr/include",
           "/avr/lib/gcc/avr/14.1.0/include",  // Justera versionsnumret!
           "/avr/lib/gcc/avr/14.1.0/include-fixed",
-          "${workspaceFolder}"
+          "${workspaceFolder}",
+          "${workspaceFolder}/**"
         ],
         "defines": [
           "__AVR_ATmega328P__",

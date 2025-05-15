@@ -53,6 +53,12 @@ Det här projektet har tagits fram på förfrågan av **Lindas Gröna Sköna**, 
    # t.ex. make build-led_button
    ```
 
+   Eller vill man bygga alla exempel så kör 
+
+   ```bash
+   make build-all
+   ```   
+
 5. **Ladda upp till Arduino Mega2560** (justera port om nödvändigt)
 
    ```bash

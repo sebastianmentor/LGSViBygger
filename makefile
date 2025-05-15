@@ -1,93 +1,79 @@
-############################################
-# AVR-gcc Makefile för Arduino Mega2560 på Windows
-############################################
+# === Användardefinierade inställningar ===
+MCU = atmega2560
+F_CPU = 16000000UL
+PROGRAMMER = arduino
+PORT = COM3         # ⚠️ Ändra till rätt COM-port
+BAUD = 115200
 
-### Hårdvaruinställningar ###
-MCU      = atmega2560
-F_CPU    = 16000000UL
+# === Verktyg ===
+CC = avr-gcc
+OBJCOPY = avr-objcopy
 
-### Port (Windows) ###
-PORT     = COM3        # Ändra till din port, t.ex. COM4
+# === Flaggor ===
+CFLAGS = -Wall -Os -DF_CPU=$(F_CPU) -mmcu=$(MCU) -MMD -MP $(INCLUDES)
 
-### Sökvägar ###
-SRC_DIR  = .
-BUILD    = build
-INC      = -I$(SRC_DIR)
+# === Kataloger ===
+EXAMPLE ?= blink
+EXAMPLE_DIR = examples/$(EXAMPLE)
+DRIVER_DIR = drivers
+BUILD_DIR = build
 
-### Filnamn ###
-TARGET   = $(BUILD)/main
-SRCS     := $(wildcard $(SRC_DIR)/*.c) $(wildcard $(SRC_DIR)/**/*.cpp)
-OBJS     := $(SRCS:%.c=$(BUILD)/%.o)
-OBJS     := $(OBJS:%.cpp=$(BUILD)/%.o)
+# === Filupptäckt ===
+SRCS := $(wildcard $(EXAMPLE_DIR)/*.c) $(wildcard $(DRIVER_DIR)/*.c)
+OBJS := $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRCS))
+DEPS := $(OBJS:.o=.d)
 
-### Kompilatorflaggor ###
-CFLAGS   = -std=gnu11 -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) $(INC)
-CPPFLAGS = -std=gnu++11 -Wall -Os -mmcu=$(MCU) -DF_CPU=$(F_CPU) $(INC)
-LDFLAGS  = -mmcu=$(MCU)
+INCLUDES = -I$(DRIVER_DIR)
 
-### Verktyg (Windows) ###
-CC       = "C:\avr\bin\avr-gcc"
-CXX      = "C:\avr\bin\avr-g++"
-OBJCOPY  = "C:\avr\bin\avr-objcopy"
-AVRDUDE  = "C:\avr\bin\avrdude.exe"
-AVRDUDE_FLAGS = -c wiring -p $(MCU) -P $(PORT) -b 115200
+# === Utdatafiler ===
+ELF = $(BUILD_DIR)/$(EXAMPLE).elf
+HEX = $(BUILD_DIR)/$(EXAMPLE).hex
 
-### Målregler ###
-.PHONY: all upload clean list-boards
+# === Felhantering om ingen källa finns i EXAMPLE ===
+ifeq ($(words $(wildcard $(EXAMPLE_DIR)/*.c)), 0)
+$(error Inga .c-filer hittades i examples/$(EXAMPLE)/ - är EXAMPLE rätt?)
+endif
 
-# 1. Lista kort (om du vill)
-list-boards:
-	@echo "Ingen automatisk lista på Windows; kontrollera Enhetshanteraren eller Arduino IDE"
+# === Mål ===
+all: $(HEX)
 
-# 2. Huvudmål: bygg HEX
-all: $(TARGET).hex
-
-# Länkning
-$(TARGET).elf: $(OBJS)
-	@mkdir $(dir $@) 2>nul || rem
-	$(CXX) $(LDFLAGS) $^ -o $@
-
-# Generera HEX
-$(TARGET).hex: $(TARGET).elf
+# HEX från ELF
+$(HEX): $(ELF)
 	$(OBJCOPY) -O ihex -R .eeprom $< $@
 
-# Kompilera C-källor
-$(BUILD)/%.o: %.c
-	@mkdir $(dir $@) 2>nul || rem
+# ELF från objektfiler
+$(ELF): $(OBJS)
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
+	$(CC) $(CFLAGS) -o $@ $^
+
+# Objektfiler
+$(BUILD_DIR)/%.o: %.c
+	@if not exist "$(dir $@)" mkdir "$(dir $@)"
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Kompilera C++-källor
-$(BUILD)/%.o: %.cpp
-	@mkdir $(dir $@) 2>nul || rem
-	$(CXX) $(CPPFLAGS) -c $< -o $@
+# Flash med avrdude
+flash: $(HEX)
+	avrdude -c $(PROGRAMMER) -p $(MCU) -P $(PORT) -b $(BAUD) -U flash:w:$(HEX)
 
-# 3. Ladda upp med avrdude
-upload: all
-	$(AVRDUDE) $(AVRDUDE_FLAGS) -U flash:w:$(TARGET).hex:i
-
-# 4. Rensa build-katalog
+# Rensa
 clean:
-	if exist $(BUILD) rd /s /q $(BUILD)
+	@if exist $(BUILD_DIR) rmdir /s /q $(BUILD_DIR)
 
-################################################################################
-# 5. Kompilera exempel från examples/ – placera denna sektion längst ned i Makefile
-################################################################################
+# Lista tillgängliga exempel
+list-drivers:
+	@echo Tillgängliga drivers:
+	@for /D %%d in (drivers\*) do @echo  - %%~nxd
 
-EXAMPLE_DIR = examples
-EXAMPLES   := $(notdir $(wildcard $(EXAMPLE_DIR)/*))
+# Lista tillgängliga exempel
+list-examples:
+	@echo Tillgängliga exempel:
+	@for /D %%d in (examples\*) do @echo  - %%~nxd
 
-.PHONY: $(EXAMPLES:%=build-%) build-all
+ALL_EXAMPLES := $(notdir $(wildcard examples/*))
 
-# Bygger ett specifikt exempel: t.ex. `make build-led_button`
-build-%:
-	@echo "Bygger exempel '$*'..."
-	$(MAKE) \
-	  MCU=$(MCU) \
-	  F_CPU=$(F_CPU) \
-	  SRC_DIR=$(EXAMPLE_DIR)/$* \
-	  TARGET=$(BUILD)/$*/main \
-	  all
+build-all:
+	@for %%e in ($(ALL_EXAMPLES)) do make EXAMPLE=%%e
 
-# Alternativt: bygg alla exempel med `make build-all`
-.PHONY: build-all
-build-all: $(EXAMPLES:%=build-%)
+-include $(DEPS)
+
+.PHONY: all clean flash list

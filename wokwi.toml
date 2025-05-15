@@ -1,4 +1,4 @@
 [wokwi]
 version = 1
-firmware = ""
-elf = ""
+firmware = "build/uartfun.hex"
+elf = "build/uartfun.elf"
